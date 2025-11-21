@@ -8,14 +8,19 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Film, Plus, Trash2, Edit, Star } from "lucide-react";
+import { Film, Plus, Trash2, Edit } from "lucide-react";
 
 const genres = ["Ação", "Comédia", "Drama", "Ficção Científica", "Terror", "Romance", "Suspense", "Animação"];
 
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Movie | null>(null);
-  const [formData, setFormData] = useState({ title: "", year: 2024, genre: "", synopsis: "", rating: 0, posterUrl: "" });
+  const [title, setTitle] = useState("");
+  const [year, setYear] = useState(2024);
+  const [genre, setGenre] = useState("");
+  const [synopsis, setSynopsis] = useState("");
+  const [rating, setRating] = useState(0);
+  const [posterUrl, setPosterUrl] = useState("");
   const { toast } = useToast();
 
   const { data: movies = [], isLoading } = useQuery<Movie[]>({ queryKey: ["/api/movies"] });
@@ -25,8 +30,8 @@ export default function Home() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
       toast({ title: "Filme adicionado!" });
-      setIsOpen(false);
-      resetForm();
+      setOpen(false);
+      clearForm();
     },
   });
 
@@ -35,8 +40,8 @@ export default function Home() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
       toast({ title: "Filme atualizado!" });
-      setIsOpen(false);
-      resetForm();
+      setOpen(false);
+      clearForm();
     },
   });
 
@@ -48,49 +53,53 @@ export default function Home() {
     },
   });
 
-  const resetForm = () => {
-    setFormData({ title: "", year: 2024, genre: "", synopsis: "", rating: 0, posterUrl: "" });
+  const clearForm = () => {
+    setTitle("");
+    setYear(2024);
+    setGenre("");
+    setSynopsis("");
+    setRating(0);
+    setPosterUrl("");
     setEditing(null);
   };
 
-  const openAdd = () => {
-    resetForm();
-    setIsOpen(true);
+  const handleAdd = () => {
+    clearForm();
+    setOpen(true);
   };
 
-  const openEdit = (movie: Movie) => {
+  const handleEdit = (movie: Movie) => {
     setEditing(movie);
-    setFormData({
-      title: movie.title,
-      year: movie.year,
-      genre: movie.genre,
-      synopsis: movie.synopsis,
-      rating: movie.rating || 0,
-      posterUrl: movie.posterUrl || "",
-    });
-    setIsOpen(true);
+    setTitle(movie.title);
+    setYear(movie.year);
+    setGenre(movie.genre);
+    setSynopsis(movie.synopsis);
+    setRating(movie.rating || 0);
+    setPosterUrl(movie.posterUrl || "");
+    setOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const data = { title, year, genre, synopsis, rating, posterUrl };
     if (editing) {
-      updateMutation.mutate({ id: editing.id, data: formData });
+      updateMutation.mutate({ id: editing.id, data });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(data);
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
+      <header className="border-b p-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Film className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-bold">CataMovie</h1>
           </div>
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openAdd} data-testid="button-add-movie">
+              <Button onClick={handleAdd} data-testid="button-add-movie">
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Filme
               </Button>
@@ -99,33 +108,22 @@ export default function Home() {
               <DialogHeader>
                 <DialogTitle>{editing ? "Editar Filme" : "Adicionar Filme"}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
                   <label className="text-sm font-medium">Título</label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                    data-testid="input-title"
-                  />
+                  <Input value={title} onChange={(e) => setTitle(e.target.value)} required data-testid="input-title" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium">Ano</label>
-                    <Input
-                      type="number"
-                      value={formData.year}
-                      onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-                      required
-                      data-testid="input-year"
-                    />
+                    <Input type="number" value={year} onChange={(e) => setYear(parseInt(e.target.value))} required data-testid="input-year" />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Gênero</label>
                     <select
                       className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                      value={formData.genre}
-                      onChange={(e) => setFormData({ ...formData, genre: e.target.value })}
+                      value={genre}
+                      onChange={(e) => setGenre(e.target.value)}
                       required
                       data-testid="select-genre"
                     >
@@ -138,35 +136,21 @@ export default function Home() {
                 </div>
                 <div>
                   <label className="text-sm font-medium">Sinopse</label>
-                  <Textarea
-                    value={formData.synopsis}
-                    onChange={(e) => setFormData({ ...formData, synopsis: e.target.value })}
-                    required
-                    data-testid="textarea-synopsis"
-                  />
+                  <Textarea value={synopsis} onChange={(e) => setSynopsis(e.target.value)} required data-testid="textarea-synopsis" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Avaliação (0-5)</label>
+                  <label className="text-sm font-medium">Avaliação</label>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, rating: star })}
-                        className="text-2xl"
-                      >
-                        {star <= formData.rating ? "⭐" : "☆"}
+                      <button key={star} type="button" onClick={() => setRating(star)} className="text-2xl">
+                        {star <= rating ? "⭐" : "☆"}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium">URL do Pôster (opcional)</label>
-                  <Input
-                    value={formData.posterUrl}
-                    onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
-                    data-testid="input-posterUrl"
-                  />
+                  <Input value={posterUrl} onChange={(e) => setPosterUrl(e.target.value)} data-testid="input-posterUrl" />
                 </div>
                 <Button type="submit" className="w-full" data-testid="button-submit">
                   {editing ? "Salvar" : "Adicionar"}
@@ -177,52 +161,49 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+      <main className="max-w-7xl mx-auto p-6">
         {isLoading ? (
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <p className="text-muted-foreground">Carregando...</p>
+          <div className="text-center py-20">
+            <p>Carregando...</p>
           </div>
         ) : movies.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-            <Film className="h-12 w-12 text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">Nenhum filme no catálogo</h2>
-            <Button onClick={openAdd}>
+          <div className="text-center py-20">
+            <Film className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-xl font-semibold mb-2">Nenhum filme</h2>
+            <Button onClick={handleAdd}>
               <Plus className="h-4 w-4 mr-2" />
-              Adicionar Primeiro Filme
+              Adicionar Filme
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {movies.map((movie) => (
-              <Card key={movie.id} className="group relative overflow-hidden hover-elevate" data-testid={`card-movie-${movie.id}`}>
+              <Card key={movie.id} className="group relative overflow-hidden" data-testid={`card-movie-${movie.id}`}>
                 <div className="aspect-[2/3] relative">
                   {movie.posterUrl ? (
                     <img src={movie.posterUrl} alt={movie.title} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
-                      <Film className="h-16 w-16 text-muted-foreground/30" />
+                    <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
+                      <Film className="h-16 w-16 text-gray-400" />
                     </div>
                   )}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-4 pt-16">
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
                     {movie.rating && movie.rating > 0 && (
-                      <div className="flex gap-0.5 mb-2 text-sm">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <span key={i}>{i < (movie.rating || 0) ? "⭐" : "☆"}</span>
+                      <div className="flex gap-0.5 mb-1 text-xs">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <span key={i}>{i <= (movie.rating || 0) ? "⭐" : "☆"}</span>
                         ))}
                       </div>
                     )}
-                    <h3 className="font-semibold text-white line-clamp-2 mb-1">{movie.title}</h3>
-                    <div className="flex items-center gap-2 text-xs text-white/80">
-                      <span>{movie.year}</span>
-                      <span>•</span>
-                      <span>{movie.genre}</span>
-                    </div>
+                    <h3 className="font-semibold text-white text-sm mb-1">{movie.title}</h3>
+                    <p className="text-xs text-white/80">{movie.year} • {movie.genre}</p>
                   </div>
-                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       size="icon"
                       variant="secondary"
-                      onClick={() => openEdit(movie)}
+                      className="h-8 w-8"
+                      onClick={() => handleEdit(movie)}
                       data-testid={`button-edit-${movie.id}`}
                     >
                       <Edit className="h-4 w-4" />
@@ -230,6 +211,7 @@ export default function Home() {
                     <Button
                       size="icon"
                       variant="destructive"
+                      className="h-8 w-8"
                       onClick={() => deleteMutation.mutate(movie.id)}
                       data-testid={`button-delete-${movie.id}`}
                     >

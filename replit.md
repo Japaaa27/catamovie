@@ -7,13 +7,14 @@ CataMovie is a web-based movie catalog application that allows users to browse, 
 ## Recent Updates (November 21, 2025)
 
 **Latest Changes:**
-- **Código drasticamente simplificado**: Reduzido de ~600 para ~240 linhas
-- **Removido react-hook-form**: Agora usa estado simples (useState)
-- **Removido componente StarRating**: Usa emojis inline (⭐/☆)
-- **Select nativo**: HTML <select> em vez de componente Shadcn complexo
-- **Validação simplificada**: HTML5 required em vez de Zod
-- Removida barra de pesquisa e filtros
-- Interface minimalista: apenas logo e botão "Adicionar Filme"
+- **Código extremamente simplificado**: ~200 linhas de código limpo e direto
+- **Abordagem de estudante**: Código básico e fácil de entender
+- **useState individual**: Cada campo do formulário tem seu próprio estado
+- **Emojis para estrelas**: Simples ⭐/☆ em vez de componente complexo
+- **Select HTML nativo**: Sem componentes complexos
+- **Validação HTML5**: Apenas `required` básico
+- **Sem abstrações desnecessárias**: Código direto ao ponto
+- Interface limpa: logo + botão, sem filtros ou busca
 
 **Complete Feature Set:**
 

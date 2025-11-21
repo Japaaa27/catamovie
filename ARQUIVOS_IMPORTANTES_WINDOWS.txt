@@ -1,0 +1,50 @@
+========================================
+  ARQUIVOS IMPORTANTES PARA WINDOWS
+========================================
+
+Ao baixar o projeto do Replit, você precisa ter
+estes arquivos para rodar no Windows:
+
+DOCUMENTAÇÃO:
+  ✅ INSTALACAO_COMPLETA_WINDOWS.md (Guia passo a passo)
+  ✅ GUIA_RAPIDO_WINDOWS.md (Referência rápida)
+  ✅ RODAR_NO_WINDOWS.md (Instruções básicas)
+  ✅ README.md (Documentação geral)
+  ✅ COMO_SUBIR_NO_GITHUB.md (Para publicar no GitHub)
+
+SCRIPTS:
+  ✅ setup-windows.bat (Setup automático - RECOMENDADO!)
+  ✅ start-windows.bat (Atalho para iniciar)
+  ✅ dev-windows.bat (Atalho desenvolvimento)
+
+CONFIGURAÇÃO:
+  ✅ .env.example (Modelo do arquivo .env)
+  ⚠️ .env (VOCÊ PRECISA CRIAR ESTE!)
+
+CÓDIGO (já corrigidos para Windows):
+  ✅ db/index.ts (com dotenv)
+  ✅ server/index-dev.ts (com dotenv)
+  ✅ server/seed.ts (com dotenv)
+  ✅ server/app.ts (host: 127.0.0.1)
+
+========================================
+  ATALHO RÁPIDO
+========================================
+
+1. Baixar projeto do Replit
+2. Criar arquivo .env na raiz
+3. Rodar setup-windows.bat
+4. Abrir http://127.0.0.1:5000
+
+========================================
+  CONTEÚDO DO .env
+========================================
+
+DATABASE_URL=postgresql://neondb_owner:npg_6zPq7NhdCLsK@ep-calm-wave-a8oaybb6-pooler.eastus2.azure.neon.tech/CataMovie?sslmode=require
+
+========================================
+
+Qualquer dúvida, leia:
+INSTALACAO_COMPLETA_WINDOWS.md
+
+========================================

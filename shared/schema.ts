@@ -1,18 +1,24 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const users = pgTable("users", {
+export const movies = pgTable("movies", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  title: text("title").notNull(),
+  year: integer("year").notNull(),
+  genre: text("genre").notNull(),
+  synopsis: text("synopsis").notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertMovieSchema = createInsertSchema(movies).omit({
+  id: true,
+}).extend({
+  year: z.number().int().min(1888).max(new Date().getFullYear() + 5),
+  title: z.string().min(1, "Título é obrigatório"),
+  genre: z.string().min(1, "Gênero é obrigatório"),
+  synopsis: z.string().min(1, "Sinopse é obrigatória"),
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
+export type InsertMovie = z.infer<typeof insertMovieSchema>;
+export type Movie = typeof movies.$inferSelect;

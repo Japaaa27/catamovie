@@ -6,7 +6,12 @@ CataMovie is a web-based movie catalog application that allows users to browse, 
 
 ## Recent Updates (November 21, 2025)
 
-**Complete Feature Set Implementation:**
+**Latest Changes:**
+- Removed search bar (simplified interface per user request)
+- Removed genre and year filters (all movies now always visible)
+- Streamlined header to show only logo and "Add Movie" button
+
+**Complete Feature Set:**
 
 1. **PostgreSQL Persistence:**
    - Migrated from in-memory storage to PostgreSQL for persistent data storage
@@ -31,13 +36,6 @@ CataMovie is a web-based movie catalog application that allows users to browse, 
    - Added edit button to each movie card (visible on hover)
    - Fixed Select component to properly pre-populate genre on edit
    - Update mutation with cache invalidation
-
-5. **Advanced Filtering:**
-   - Added genre filter dropdown with all available genres
-   - Added year filter dropdown with dynamic year options from catalog
-   - Combined filtering logic: search + genre + year work together
-   - "Clear filters" button appears when filters are active
-   - Responsive filter UI with proper test IDs
 
 ## User Preferences
 
@@ -66,8 +64,9 @@ Preferred communication style: Simple, everyday language.
 **Design Principles:**
 - Responsive grid layout: 2-5 columns depending on screen size
 - Card-based movie presentation with poster imagery and hover effects
-- Interactive features: add, edit, delete, search, filter by genre/year
+- Interactive features: add, edit, delete (no search or filters)
 - Star rating visualization with interactive editing
+- Clean, minimalist interface showing all movies at once
 - Typography hierarchy using DM Sans or Inter fonts
 - Smooth animations and transitions for enhanced UX
 

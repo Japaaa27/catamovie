@@ -31,7 +31,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Film, Plus, Search, Trash2, Loader2, Edit, X, Filter } from "lucide-react";
+import { Film, Plus, Trash2, Loader2, Edit } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMovieSchema } from "@shared/schema";
@@ -51,11 +51,8 @@ const genres = [
 ];
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
-  const [selectedGenre, setSelectedGenre] = useState<string>("all");
-  const [selectedYear, setSelectedYear] = useState<string>("all");
   const { toast } = useToast();
 
   const { data: movies = [], isLoading } = useQuery<Movie[]>({
@@ -165,22 +162,6 @@ export default function Home() {
     },
   });
 
-  const filteredMovies = movies.filter((movie) => {
-    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesGenre = selectedGenre === "all" || movie.genre === selectedGenre;
-    const matchesYear = selectedYear === "all" || movie.year.toString() === selectedYear;
-    return matchesSearch && matchesGenre && matchesYear;
-  });
-
-  const availableYears = Array.from(new Set(movies.map((m) => m.year)))
-    .sort((a, b) => b - a);
-
-  const hasActiveFilters = selectedGenre !== "all" || selectedYear !== "all";
-
-  const clearFilters = () => {
-    setSelectedGenre("all");
-    setSelectedYear("all");
-  };
 
   const onSubmit = (data: InsertMovie) => {
     if (editingMovie) {
@@ -202,20 +183,6 @@ export default function Home() {
             <h1 className="text-xl font-bold text-foreground" data-testid="text-app-title">
               CataMovie
             </h1>
-          </div>
-
-          <div className="flex-1 max-w-md mx-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Buscar filmes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-                data-testid="input-search"
-              />
-            </div>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -405,72 +372,6 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        {/* Filters */}
-        <div className="mb-6 flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Filter className="h-4 w-4" />
-            <span>Filtrar por:</span>
-          </div>
-          
-          <Select value={selectedGenre} onValueChange={setSelectedGenre}>
-            <SelectTrigger className="w-[180px]" data-testid="select-filter-genre">
-              <SelectValue placeholder="Todos os gêneros" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" data-testid="select-filter-genre-all">
-                Todos os gêneros
-              </SelectItem>
-              {genres.map((genre) => (
-                <SelectItem 
-                  key={genre} 
-                  value={genre}
-                  data-testid={`select-filter-genre-${genre.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  {genre}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-[140px]" data-testid="select-filter-year">
-              <SelectValue placeholder="Todos os anos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" data-testid="select-filter-year-all">
-                Todos os anos
-              </SelectItem>
-              {availableYears.map((year) => (
-                <SelectItem 
-                  key={year} 
-                  value={year.toString()}
-                  data-testid={`select-filter-year-${year}`}
-                >
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {hasActiveFilters && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFilters}
-              data-testid="button-clear-filters"
-            >
-              <X className="h-3 w-3 mr-1" />
-              Limpar filtros
-            </Button>
-          )}
-        </div>
-
-        {searchQuery && (
-          <p className="text-sm text-muted-foreground mb-4" data-testid="text-search-results">
-            {filteredMovies.length} {filteredMovies.length === 1 ? "resultado" : "resultados"} para "{searchQuery}"
-          </p>
-        )}
-
         {isLoading ? (
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center space-y-4">
@@ -478,34 +379,30 @@ export default function Home() {
               <p className="text-muted-foreground">Carregando filmes...</p>
             </div>
           </div>
-        ) : filteredMovies.length === 0 ? (
+        ) : movies.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
             <div className="rounded-full bg-muted p-6">
               <Film className="h-12 w-12 text-muted-foreground" />
             </div>
             <div className="space-y-2">
               <h2 className="text-2xl font-semibold" data-testid="text-empty-title">
-                {searchQuery ? "Nenhum filme encontrado" : "Nenhum filme no catálogo"}
+                Nenhum filme no catálogo
               </h2>
               <p className="text-muted-foreground max-w-md" data-testid="text-empty-description">
-                {searchQuery
-                  ? "Tente buscar com outros termos"
-                  : "Comece adicionando seu primeiro filme ao catálogo"}
+                Comece adicionando seu primeiro filme ao catálogo
               </p>
             </div>
-            {!searchQuery && (
-              <Button onClick={openAddDialog} data-testid="button-add-first-movie">
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar Primeiro Filme
-              </Button>
-            )}
+            <Button onClick={openAddDialog} data-testid="button-add-first-movie">
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Primeiro Filme
+            </Button>
           </div>
         ) : (
           <div 
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
             data-testid="grid-movies"
           >
-            {filteredMovies.map((movie) => (
+            {movies.map((movie) => (
               <Card
                 key={movie.id}
                 className="group relative overflow-hidden transition-all hover-elevate active-elevate-2"

@@ -3,11 +3,6 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { type Movie } from "@shared/schema";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { Film, Plus, Trash2, Edit } from "lucide-react";
 
 const genres = ["Ação", "Comédia", "Drama", "Ficção Científica", "Terror", "Romance", "Suspense", "Animação"];
@@ -23,37 +18,37 @@ export default function Home() {
   const [posterUrl, setPosterUrl] = useState("");
   const { toast } = useToast();
 
-  const { data: movies = [], isLoading } = useQuery<Movie[]>({ queryKey: ["/api/movies"] });
+  const { data: movies = [] } = useQuery<Movie[]>({ queryKey: ["/api/movies"] });
 
-  const createMutation = useMutation({
+  const createMovie = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/movies", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
-      toast({ title: "Filme adicionado!" });
+      toast({ title: "Adicionado!" });
       setOpen(false);
-      clearForm();
+      clear();
     },
   });
 
-  const updateMutation = useMutation({
+  const updateMovie = useMutation({
     mutationFn: ({ id, data }: any) => apiRequest("PUT", `/api/movies/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
-      toast({ title: "Filme atualizado!" });
+      toast({ title: "Atualizado!" });
       setOpen(false);
-      clearForm();
+      clear();
     },
   });
 
-  const deleteMutation = useMutation({
+  const deleteMovie = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/movies/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
-      toast({ title: "Filme removido!" });
+      toast({ title: "Removido!" });
     },
   });
 
-  const clearForm = () => {
+  const clear = () => {
     setTitle("");
     setYear(2024);
     setGenre("");
@@ -63,12 +58,12 @@ export default function Home() {
     setEditing(null);
   };
 
-  const handleAdd = () => {
-    clearForm();
+  const add = () => {
+    clear();
     setOpen(true);
   };
 
-  const handleEdit = (movie: Movie) => {
+  const edit = (movie: Movie) => {
     setEditing(movie);
     setTitle(movie.title);
     setYear(movie.year);
@@ -79,106 +74,91 @@ export default function Home() {
     setOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const data = { title, year, genre, synopsis, rating, posterUrl };
-    if (editing) {
-      updateMutation.mutate({ id: editing.id, data });
-    } else {
-      createMutation.mutate(data);
-    }
+    editing ? updateMovie.mutate({ id: editing.id, data }) : createMovie.mutate(data);
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b p-4">
+      <div className="border-b p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Film className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-bold">CataMovie</h1>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleAdd} data-testid="button-add-movie">
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar Filme
-              </Button>
-            </DialogTrigger>
-            <DialogContent data-testid="dialog-add-movie">
-              <DialogHeader>
-                <DialogTitle>{editing ? "Editar Filme" : "Adicionar Filme"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div>
-                  <label className="text-sm font-medium">Título</label>
-                  <Input value={title} onChange={(e) => setTitle(e.target.value)} required data-testid="input-title" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium">Ano</label>
-                    <Input type="number" value={year} onChange={(e) => setYear(parseInt(e.target.value))} required data-testid="input-year" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Gênero</label>
-                    <select
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                      value={genre}
-                      onChange={(e) => setGenre(e.target.value)}
-                      required
-                      data-testid="select-genre"
-                    >
-                      <option value="">Selecione</option>
-                      {genres.map((g) => (
-                        <option key={g} value={g}>{g}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Sinopse</label>
-                  <Textarea value={synopsis} onChange={(e) => setSynopsis(e.target.value)} required data-testid="textarea-synopsis" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Avaliação</label>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button key={star} type="button" onClick={() => setRating(star)} className="text-2xl">
-                        {star <= rating ? "⭐" : "☆"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">URL do Pôster (opcional)</label>
-                  <Input value={posterUrl} onChange={(e) => setPosterUrl(e.target.value)} data-testid="input-posterUrl" />
-                </div>
-                <Button type="submit" className="w-full" data-testid="button-submit">
-                  {editing ? "Salvar" : "Adicionar"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <button onClick={add} className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90" data-testid="button-add-movie">
+            <Plus className="h-4 w-4 inline mr-2" />
+            Adicionar
+          </button>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-7xl mx-auto p-6">
-        {isLoading ? (
-          <div className="text-center py-20">
-            <p>Carregando...</p>
+      {open && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setOpen(false)}>
+          <div className="bg-background rounded-lg p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()} data-testid="dialog-add-movie">
+            <h2 className="text-lg font-bold mb-4">{editing ? "Editar" : "Adicionar"}</h2>
+            <form onSubmit={submit} className="space-y-3">
+              <div>
+                <label className="text-sm">Título</label>
+                <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full p-2 border rounded" data-testid="input-title" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm">Ano</label>
+                  <input type="number" value={year} onChange={(e) => setYear(+e.target.value)} required className="w-full p-2 border rounded" data-testid="input-year" />
+                </div>
+                <div>
+                  <label className="text-sm">Gênero</label>
+                  <select value={genre} onChange={(e) => setGenre(e.target.value)} required className="w-full p-2 border rounded" data-testid="select-genre">
+                    <option value="">Selecione</option>
+                    {genres.map((g) => (
+                      <option key={g} value={g}>{g}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm">Sinopse</label>
+                <textarea value={synopsis} onChange={(e) => setSynopsis(e.target.value)} required className="w-full p-2 border rounded" rows={3} data-testid="textarea-synopsis" />
+              </div>
+              <div>
+                <label className="text-sm">Avaliação</label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <button key={s} type="button" onClick={() => setRating(s)} className="text-2xl">
+                      {s <= rating ? "⭐" : "☆"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm">Pôster (URL)</label>
+                <input type="text" value={posterUrl} onChange={(e) => setPosterUrl(e.target.value)} className="w-full p-2 border rounded" data-testid="input-posterUrl" />
+              </div>
+              <button type="submit" className="w-full p-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90" data-testid="button-submit">
+                {editing ? "Salvar" : "Adicionar"}
+              </button>
+            </form>
           </div>
-        ) : movies.length === 0 ? (
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto p-6">
+        {movies.length === 0 ? (
           <div className="text-center py-20">
             <Film className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-xl font-semibold mb-2">Nenhum filme</h2>
-            <Button onClick={handleAdd}>
-              <Plus className="h-4 w-4 mr-2" />
+            <p className="text-lg mb-4">Nenhum filme</p>
+            <button onClick={add} className="px-4 py-2 bg-primary text-primary-foreground rounded-md">
+              <Plus className="h-4 w-4 inline mr-2" />
               Adicionar Filme
-            </Button>
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {movies.map((movie) => (
-              <Card key={movie.id} className="group relative overflow-hidden" data-testid={`card-movie-${movie.id}`}>
+              <div key={movie.id} className="group relative overflow-hidden rounded-lg border bg-card" data-testid={`card-movie-${movie.id}`}>
                 <div className="aspect-[2/3] relative">
                   {movie.posterUrl ? (
                     <img src={movie.posterUrl} alt={movie.title} className="w-full h-full object-cover" />
@@ -199,32 +179,20 @@ export default function Home() {
                     <p className="text-xs text-white/80 mb-1">{movie.year} • {movie.genre}</p>
                     <p className="text-xs text-white/70 line-clamp-2">{movie.synopsis}</p>
                   </div>
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="h-8 w-8"
-                      onClick={() => handleEdit(movie)}
-                      data-testid={`button-edit-${movie.id}`}
-                    >
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100">
+                    <button onClick={() => edit(movie)} className="p-2 bg-secondary rounded-md" data-testid={`button-edit-${movie.id}`}>
                       <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      className="h-8 w-8"
-                      onClick={() => deleteMutation.mutate(movie.id)}
-                      data-testid={`button-delete-${movie.id}`}
-                    >
+                    </button>
+                    <button onClick={() => deleteMovie.mutate(movie.id)} className="p-2 bg-destructive text-destructive-foreground rounded-md" data-testid={`button-delete-${movie.id}`}>
                       <Trash2 className="h-4 w-4" />
-                    </Button>
+                    </button>
                   </div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

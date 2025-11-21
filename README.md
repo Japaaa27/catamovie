@@ -1,157 +1,116 @@
 # 🎬 CataMovie
 
-Um catálogo de filmes simples e minimalista construído com React, Express e PostgreSQL.
+Catálogo de filmes simples feito com React, Express e PostgreSQL.
 
 ---
 
-## 🪟 **USUÁRIOS WINDOWS - ATENÇÃO!**
+## 🪟 Windows - Instalação Rápida
 
-Se você está no **Windows**, use uma destas opções:
+### Opção 1 - Automático (Recomendado) ⭐
 
-### **OPÇÃO 1 - Setup Automático (Recomendado)** ⭐
+1. Clique duas vezes em **`setup-windows.bat`**
+2. Aguarde a instalação
+3. Abra: http://127.0.0.1:5000
 
-1. Baixe o arquivo **`setup-windows.bat`** do projeto
-2. Clique duas vezes nele
-3. Aguarde a instalação automática
-4. Pronto! 🎉
+### Opção 2 - Manual
 
-### **OPÇÃO 2 - Passo a Passo Manual**
-
-Leia o guia completo: **[INSTALACAO_COMPLETA_WINDOWS.md](./INSTALACAO_COMPLETA_WINDOWS.md)**
+Veja: **[INSTALACAO_COMPLETA_WINDOWS.md](./INSTALACAO_COMPLETA_WINDOWS.md)**
 
 ---
 
-## 📦 Tecnologias
+## 💻 Linux / Mac / Replit
 
-- **Frontend**: React 18 + Vite + Tailwind CSS
-- **Backend**: Express.js + TypeScript
-- **Banco de Dados**: PostgreSQL 16
-- **ORM**: Drizzle ORM
-
-## 🚀 Como rodar localmente
-
-### 1. Clonar o repositório
-
-```bash
-git clone [url-do-seu-repositorio]
-cd catamovie
-```
-
-### 2. Instalar dependências
+### 1. Instalar dependências
 
 ```bash
 npm install
 ```
 
-### 3. Configurar banco de dados
-
-Crie um arquivo `.env` na raiz do projeto (use `.env.example` como base):
+### 2. Criar arquivo `.env`
 
 ```env
-DATABASE_URL=postgresql://usuario:senha@host:5432/database
+DATABASE_URL=sua_url_do_postgres
 ```
 
-**Opções de banco:**
-- **Neon** (recomendado): https://neon.tech
-- **Supabase**: https://supabase.com
-- **Local**: Instale PostgreSQL no seu computador
-
-### 4. Configurar o schema do banco
+### 3. Configurar banco
 
 ```bash
 npm run db:push
 ```
 
-### 5. Popular com dados reais
-
-**OPÇÃO A - Seed automático (recomendado):**
+### 4. Popular com filmes
 
 ```bash
 npx tsx server/seed.ts
 ```
 
-Isso vai inserir os 6 filmes reais do projeto automaticamente!
-
-**OPÇÃO B - Importar SQL:**
-
-Se você tiver o arquivo `database_backup.sql`:
-
-```bash
-psql "sua_url_do_banco" < database_backup.sql
-```
-
-### 6. Rodar o projeto
+### 5. Rodar
 
 ```bash
 npm run dev
 ```
 
-**Windows:** Funciona! O projeto agora tem suporte completo ao `.env` no Windows.
+Abra: http://localhost:5000
 
-Acesse: http://localhost:5000
+---
 
 ## 📁 Estrutura do Projeto
 
-```
-catamovie/
-├── client/              # Frontend React
-│   ├── index.html
-│   └── src/
-│       ├── main.tsx     # Aplicação completa (232 linhas!)
-│       └── index.css
-├── server/              # Backend Express
-│   ├── routes.ts        # API endpoints
-│   ├── storage.ts       # Lógica de banco de dados
-│   └── app.ts
-├── shared/
-│   └── schema.ts        # Schema do banco (Drizzle)
-└── db/
-    └── index.ts         # Conexão PostgreSQL
-```
+Apenas **8 arquivos TypeScript** principais!
 
-## 🎯 Funcionalidades
+Veja detalhes completos em: **[ESTRUTURA_DO_PROJETO.md](./ESTRUTURA_DO_PROJETO.md)**
+
+---
+
+## 🛠️ Tecnologias
+
+- React 18 + Vite
+- Express + TypeScript
+- PostgreSQL + Drizzle ORM
+- Tailwind CSS
+
+---
+
+## 📝 Comandos Úteis
+
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Rodar projeto |
+| `npm run db:push` | Atualizar schema do banco |
+| `npx tsx server/seed.ts` | Popular banco com filmes |
+| `npm run build` | Gerar build de produção |
+
+---
+
+## 🐛 Problemas Comuns
+
+### "DATABASE_URL must be set"
+→ Faltou criar o arquivo `.env` com a URL do banco
+
+### Windows: "listen ENOTSUP"
+→ Use o script `setup-windows.bat` que corrige automaticamente
+
+### "Cannot find module"
+→ Execute `npm install`
+
+---
+
+## 📤 Subir no GitHub
+
+Veja: **[COMO_SUBIR_NO_GITHUB.md](./COMO_SUBIR_NO_GITHUB.md)**
+
+---
+
+## ✨ Funcionalidades
 
 - ✅ Listar filmes
-- ✅ Adicionar novos filmes
-- ✅ Editar filmes existentes
-- ✅ Deletar filmes
-- ✅ Sistema de avaliação (1-5 estrelas)
-- ✅ Upload de URL de pôster
-- ✅ Dados reais incluídos (6 filmes clássicos)
+- ✅ Adicionar filme
+- ✅ Editar filme
+- ✅ Deletar filme
+- ✅ Sistema de avaliação (0-5 estrelas)
+- ✅ Posters de filmes
+- ✅ Banco de dados persistente
 
-## 🎬 Filmes incluídos
+---
 
-O projeto vem com 6 filmes clássicos pré-cadastrados:
-1. O Poderoso Chefão (1972)
-2. Pulp Fiction (1994)
-3. Clube da Luta (1999)
-4. Matrix (1999)
-5. Interestelar (2014)
-6. A Origem (2010)
-
-## 🔒 Segurança
-
-**IMPORTANTE:**
-- Nunca comite o arquivo `.env` no Git
-- Nunca compartilhe sua `DATABASE_URL`
-- Use variáveis de ambiente para dados sensíveis
-
-## 📝 Scripts disponíveis
-
-```bash
-npm run dev              # Roda em modo desenvolvimento
-npm run build            # Build para produção
-npm run db:push          # Sincroniza schema com banco
-npx tsx server/seed.ts   # Popula banco com dados reais
-```
-
-## 🌐 Deploy
-
-Para fazer deploy:
-1. Configure as variáveis de ambiente no servidor
-2. Rode `npm run build`
-3. Rode `npm start` (produção)
-
-## 📄 Licença
-
-MIT
+**Desenvolvido para trabalho acadêmico** 🎓

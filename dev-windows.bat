@@ -1,5 +1,8 @@
 @echo off
-chcp 65001 >nul
-echo 🎬 Iniciando CataMovie...
+echo Iniciando CataMovie...
+echo Abra: http://localhost:5000
+echo Pressione Ctrl+C para parar
 echo.
-npx cross-env NODE_ENV=development tsx server/index-dev.ts
+
+set NODE_ENV=development
+npx tsx server/index-dev.ts

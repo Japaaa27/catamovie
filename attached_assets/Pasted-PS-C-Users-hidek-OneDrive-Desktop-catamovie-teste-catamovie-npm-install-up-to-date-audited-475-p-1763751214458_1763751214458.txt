@@ -1,0 +1,46 @@
+PS C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie> npm install
+up to date, audited 475 packages in 2s
+
+63 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (3 low, 5 moderate, 1 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+PS C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie> npx drizzle-kit push --force
+No config path provided, using default 'drizzle.config.ts'
+Reading config file 'C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie\drizzle.config.ts'
+Using 'pg' driver for database querying
+[✓] Pulling schema from database...
+[✓] Changes applied
+PS C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie> npx tsx server/seed.ts
+C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie\db\index.ts:8
+  throw new Error(
+        ^
+
+Error: DATABASE_URL must be set. Did you forget to provision a database?
+    at <anonymous> (C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie\db\index.ts:8:9)
+    at ModuleJob.run (node:internal/modules/esm/module_job:377:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:671:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.11.1
+PS C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie> $env:NODE_ENV="development"; npx tsx server/index-dev.ts
+C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie\db\index.ts:8
+  throw new Error(
+        ^
+
+Error: DATABASE_URL must be set. Did you forget to provision a database?
+    at <anonymous> (C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie\db\index.ts:8:9)
+    at ModuleJob.run (node:internal/modules/esm/module_job:377:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:671:26)        
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.11.1
+PS C:\Users\hidek\OneDrive\Desktop\catamovie teste\catamovie> 

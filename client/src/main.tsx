@@ -1,16 +1,45 @@
 import { createRoot } from "react-dom/client";
 import { useState } from "react";
-import { useQuery, useMutation, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { queryClient, apiRequest } from "./lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
+import { useQuery, useMutation, QueryClient, QueryClientProvider, useQueryClient, QueryFunction } from "@tanstack/react-query";
 import { type Movie } from "@shared/schema";
 import { Film, Plus, Trash2, Edit } from "lucide-react";
 import "./index.css";
+
+// QueryClient config
+const getQueryFn: QueryFunction = async ({ queryKey }) => {
+  const res = await fetch(queryKey.join("/") as string, { credentials: "include" });
+  if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+  return await res.json();
+};
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: getQueryFn,
+      refetchInterval: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+      retry: false,
+    },
+    mutations: { retry: false },
+  },
+});
+
+async function apiRequest(method: string, url: string, data?: unknown): Promise<Response> {
+  const res = await fetch(url, {
+    method,
+    headers: data ? { "Content-Type": "application/json" } : {},
+    body: data ? JSON.stringify(data) : undefined,
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+  return res;
+}
+
 const genres = ["Ação", "Comédia", "Drama", "Ficção Científica", "Terror", "Romance", "Suspense", "Animação"];
 
 function App() {
-  const queryClient = useQueryClient();
+  const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Movie | null>(null);
   const [title, setTitle] = useState("");
@@ -19,15 +48,13 @@ function App() {
   const [synopsis, setSynopsis] = useState("");
   const [rating, setRating] = useState(0);
   const [posterUrl, setPosterUrl] = useState("");
-  const { toast } = useToast();
 
   const { data: movies = [] } = useQuery<Movie[]>({ queryKey: ["/api/movies"] });
 
   const create = useMutation({
     mutationFn: (data: any) => apiRequest("POST", "/api/movies", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
-      toast({ title: "Adicionado!" });
+      qc.invalidateQueries({ queryKey: ["/api/movies"] });
       setOpen(false);
       clear();
     },
@@ -36,8 +63,7 @@ function App() {
   const update = useMutation({
     mutationFn: ({ id, data }: any) => apiRequest("PUT", `/api/movies/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
-      toast({ title: "Atualizado!" });
+      qc.invalidateQueries({ queryKey: ["/api/movies"] });
       setOpen(false);
       clear();
     },
@@ -46,8 +72,7 @@ function App() {
   const remove = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/movies/${id}`),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
-      toast({ title: "Removido!" });
+      qc.invalidateQueries({ queryKey: ["/api/movies"] });
     },
   });
 
@@ -203,6 +228,5 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <App />
-    <Toaster />
   </QueryClientProvider>
 );

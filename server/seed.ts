@@ -3,6 +3,7 @@
  * Use: npm run seed
  */
 
+import "dotenv/config";
 import { db } from "../db/index";
 import { movies } from "@shared/schema";
 

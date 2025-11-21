@@ -1,12 +1,12 @@
 # 🪟 Como Rodar CataMovie no Windows
 
-## ⚠️ IMPORTANTE: Scripts do projeto usam sintaxe Linux
+## ✅ ATUALIZAÇÃO: Agora funciona no Windows!
 
-O script `npm run dev` não funciona direto no PowerShell do Windows.
+O projeto foi atualizado com suporte a `.env` no Windows usando a biblioteca `dotenv`.
 
 ---
 
-## ✅ SOLUÇÃO RÁPIDA - Use npx direto
+## 🚀 SOLUÇÃO RÁPIDA
 
 ### 1. Criar arquivo `.env`
 
@@ -42,17 +42,17 @@ npx tsx server/seed.ts
 
 ### 5. Rodar o projeto
 
-**Opção A - Modo desenvolvimento (COM variável de ambiente):**
-
-```powershell
-$env:NODE_ENV="development"; npx tsx server/index-dev.ts
-```
-
-**Opção B - Rodar direto sem variável:**
-
 ```powershell
 npx tsx server/index-dev.ts
 ```
+
+Ou simplesmente:
+
+```powershell
+npm run dev
+```
+
+(Agora funciona no Windows também!)
 
 ### 6. Abrir no navegador
 

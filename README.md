@@ -67,6 +67,8 @@ psql "sua_url_do_banco" < database_backup.sql
 npm run dev
 ```
 
+**Windows:** Funciona! O projeto agora tem suporte completo ao `.env` no Windows.
+
 Acesse: http://localhost:5000
 
 ## 📁 Estrutura do Projeto

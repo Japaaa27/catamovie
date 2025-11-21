@@ -1,8 +1,6 @@
 # ⚡ SETUP WINDOWS - Comandos PowerShell
 
-## 1️⃣ Criar arquivo `.env` na raiz do projeto
-
-Conteúdo do `.env`:
+## 1️⃣ Criar arquivo `.env` na raiz
 
 ```env
 DATABASE_URL=postgresql://neondb_owner:npg_6zPq7NhdCLsK@ep-calm-wave-a8oaybb6-pooler.eastus2.azure.neon.tech/CataMovie?sslmode=require
@@ -10,31 +8,25 @@ DATABASE_URL=postgresql://neondb_owner:npg_6zPq7NhdCLsK@ep-calm-wave-a8oaybb6-po
 
 ---
 
-## 2️⃣ Comandos PowerShell (em sequência)
+## 2️⃣ Rodar comandos (PowerShell)
 
-### Opção A - Automático (Recomendado):
+### ⚡ Automático:
 
 ```powershell
 .\setup-windows.bat
 ```
 
-### Opção B - Manual:
+### 🔧 Manual:
 
 ```powershell
 npm install
-```
-
-```powershell
 npx tsx server/seed.ts
-```
-
-```powershell
 npm run dev
 ```
 
 ---
 
-## 3️⃣ Abrir no navegador
+## 3️⃣ Abrir navegador
 
 ```
 http://127.0.0.1:5000

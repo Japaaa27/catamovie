@@ -1,8 +1,8 @@
-# CataMovie
+# CataMovie - Movie Catalog Application
 
 ## Overview
 
-CataMovie is a movie catalog web application that allows users to browse, add, edit, and delete movies. Built with React (frontend), Express (backend), and PostgreSQL (database), the application provides a simple interface for managing a personal movie collection. Users can view movie details including title, year, genre, synopsis, rating, and poster images.
+CataMovie is a simple, full-stack movie catalog application built with React, Express, and PostgreSQL. It allows users to browse, create, edit, and delete movie entries with details like title, year, genre, synopsis, rating, and poster images. The application features a clean, modern UI built with Tailwind CSS and Radix UI components, and uses Drizzle ORM for type-safe database operations.
 
 ## User Preferences
 
@@ -13,105 +13,129 @@ Preferred communication style: Simple, everyday language.
 ### Frontend Architecture
 
 **Technology Stack:**
-- **React** with TypeScript for UI components
-- **Vite** as the build tool and development server
-- **TanStack Query (React Query)** for server state management
-- **Tailwind CSS** for styling with custom design tokens
-- **Radix UI** components for accessible UI primitives
+- React 18 with TypeScript
+- Vite for build tooling and development server
+- TanStack Query (React Query) for server state management
+- Tailwind CSS for styling with custom design tokens
+- Radix UI for accessible component primitives
 
-**Design Decisions:**
-- Single-page application (SPA) architecture
-- Component-based structure with TypeScript for type safety
-- Client-side routing handled implicitly through React state
-- Real-time data synchronization using React Query's automatic refetching
-- Custom design system built on Tailwind with CSS variables for theming
+**Design Pattern:**
+The frontend follows a single-page application (SPA) architecture with all UI logic contained in `client/src/main.tsx`. This monolithic approach was chosen for simplicity, making the codebase easy to understand and navigate for a small-scale application. The entire application state is managed through TanStack Query, eliminating the need for additional state management libraries.
+
+**Component Structure:**
+All components are defined inline within the main file rather than split into separate modules. This co-location pattern reduces file navigation overhead for a simple CRUD application, though it would need refactoring as the application grows.
 
 ### Backend Architecture
 
 **Technology Stack:**
-- **Express.js** server running on Node.js
-- **TypeScript** for type-safe server code
-- Separate development and production entry points (`index-dev.ts` and `index-prod.ts`)
+- Node.js with Express.js
+- TypeScript for type safety
+- Drizzle ORM with Neon Serverless PostgreSQL
+- Zod for runtime validation
+
+**Server Configuration:**
+The application uses a dual-mode server setup:
+- `server/index-dev.ts`: Development mode with Vite middleware integration for HMR
+- `server/index-prod.ts`: Production mode serving pre-built static assets
+
+**Rationale:** This separation allows for optimal developer experience in development (hot module replacement, instant feedback) while maintaining production performance with pre-built assets.
 
 **API Design:**
-- RESTful API endpoints under `/api/movies`
-- CRUD operations: GET (all/single), POST, PUT, DELETE
-- Request validation using Zod schemas
-- JSON-based request/response format
+RESTful API endpoints follow standard conventions:
+- `GET /api/movies` - List all movies
+- `GET /api/movies/:id` - Get single movie
+- `POST /api/movies` - Create movie
+- `PUT /api/movies/:id` - Update movie
+- `DELETE /api/movies/:id` - Delete movie
 
-**Key Patterns:**
-- Storage abstraction layer (`IStorage` interface) for database operations
-- Automatic database seeding with sample movies on startup
-- Centralized error handling and logging
-- Development mode with HMR (Hot Module Replacement) via Vite middleware
+The API uses a storage abstraction layer (`server/storage.ts`) that implements the `IStorage` interface, allowing for potential storage backend swapping without changing route logic.
 
-### Data Layer
+### Database Architecture
 
-**Database:**
-- **PostgreSQL** as the primary database (hosted on Neon)
-- **Drizzle ORM** for type-safe database queries and schema management
-- **@neondatabase/serverless** for serverless-compatible PostgreSQL connections
+**Database:** Neon Serverless PostgreSQL (managed cloud PostgreSQL)
+
+**ORM:** Drizzle ORM was chosen for its lightweight nature, excellent TypeScript support, and SQL-like query builder that doesn't abstract away the database. This provides better learning opportunities and debugging capabilities compared to heavier ORMs.
 
 **Schema Design:**
-- Single `movies` table with fields: id (UUID), title, year, genre, synopsis, rating, posterUrl
-- UUID primary keys generated via PostgreSQL's `gen_random_uuid()`
-- Validation constraints enforced at both schema and API levels
+Single `movies` table with columns:
+- `id` (UUID, auto-generated)
+- `title` (text)
+- `year` (integer)
+- `genre` (text)
+- `synopsis` (text)
+- `rating` (real/float, 0-5 scale)
+- `posterUrl` (text, optional)
 
-**Migration Strategy:**
-- Schema-first approach using Drizzle Kit
-- `drizzle.config.ts` defines database configuration
-- `npm run db:push` command to sync schema changes to database
+**Validation Strategy:** 
+Schema validation is shared between frontend and backend using Zod schemas in `shared/schema.ts`. Drizzle-Zod integration automatically generates insert/update schemas from the database schema, ensuring type safety across the stack.
 
-### Build and Deployment
+### Configuration Management
 
-**Development:**
-- Vite dev server with HMR for frontend
-- Express middleware mode integrating Vite for SSR-like development
-- Environment variables loaded via dotenv
-- Replit-specific plugins for enhanced developer experience
+**Environment Variables:**
+The application uses dotenv for environment configuration. Critical configuration:
+- `DATABASE_URL`: PostgreSQL connection string
+- `NODE_ENV`: Environment mode (development/production)
+- `HOST`: Server host (defaults to 127.0.0.1 for Windows compatibility)
 
-**Production:**
-- Vite builds frontend to `dist/public`
-- esbuild bundles backend to `dist/index.js`
-- Static file serving from Express in production mode
-- Single compiled artifact for deployment
+**Windows Compatibility:**
+Special considerations for Windows development:
+- Host binding uses `127.0.0.1` instead of `0.0.0.0` 
+- Removed `reusePort` option for compatibility
+- dotenv explicitly imported in entry points (`db/index.ts`, `server/index-dev.ts`, `server/seed.ts`)
 
-**Rationale:**
-- Dual entry points allow different optimizations for dev vs. prod
-- Vite provides fast development experience with minimal configuration
-- Express serves both API and static files, simplifying deployment
+### Build System
+
+**Vite Configuration:**
+- Custom alias mapping (`@` for client, `@shared` for shared code)
+- Separate development and production plugin configurations
+- Replit-specific plugins conditionally loaded based on environment
+
+**TypeScript Configuration:**
+- Strict mode enabled for maximum type safety
+- Path aliases matching Vite configuration
+- ESNext module system with bundler resolution
+
+**Tailwind Configuration:**
+Custom design system with CSS variables for theming, supporting both light and dark modes through class-based switching.
 
 ## External Dependencies
 
-### Database Service
-- **Neon PostgreSQL**: Serverless PostgreSQL database
-- Connection via `DATABASE_URL` environment variable
-- WebSocket-based connection using `@neondatabase/serverless` and `ws` package
+### Third-Party Services
 
-### UI Component Libraries
-- **Radix UI**: Comprehensive set of accessible, unstyled UI primitives including dialogs, dropdowns, accordions, tooltips, and form controls
-- **Lucide React**: Icon library for consistent iconography
+**Neon Database:**
+- Serverless PostgreSQL hosting
+- Connection pooling enabled via pooler URL
+- WebSocket-based connections using `@neondatabase/serverless` and `ws` packages
 
-### Form and Validation
-- **Zod**: TypeScript-first schema validation for both runtime and type inference
-- **React Hook Form** with Zod resolvers for form state management
-- **drizzle-zod**: Integration between Drizzle schemas and Zod validation
+### Key NPM Packages
 
-### Styling and CSS
-- **Tailwind CSS**: Utility-first CSS framework
-- **PostCSS** with Autoprefixer for CSS processing
-- **class-variance-authority** and **clsx**: Dynamic className utilities
+**Frontend:**
+- `@tanstack/react-query`: Server state management and caching
+- `@radix-ui/*`: Accessible UI component primitives (22+ packages for dialog, dropdown, toast, etc.)
+- `tailwindcss`: Utility-first CSS framework
+- `class-variance-authority`: Type-safe component variants
+- `cmdk`: Command palette component
+- `lucide-react`: Icon library
 
-### Development Tools
-- **TypeScript**: Static typing for both frontend and backend
-- **tsx**: TypeScript execution for development
-- **Vite plugins**: Replit-specific plugins for error overlay, cartographer, and dev banner
+**Backend:**
+- `express`: Web server framework
+- `drizzle-orm`: TypeScript ORM
+- `drizzle-zod`: Zod schema generation from Drizzle schemas
+- `zod`: Runtime type validation
+- `dotenv`: Environment variable management
 
-### State Management
-- **TanStack Query (React Query)**: Server state management, caching, and synchronization
-- Eliminates need for global client state management
+**Development:**
+- `vite`: Build tool and dev server
+- `tsx`: TypeScript execution
+- `esbuild`: Backend bundling for production
+- `@replit/*`: Replit-specific tooling (cartographer, dev banner, error overlay)
 
-### Build Tools
-- **esbuild**: Fast JavaScript bundler for production backend
-- **Vite**: Frontend build tool and dev server
-- **Drizzle Kit**: Database migration and schema management tool
+### API Integrations
+
+**TMDB (The Movie Database):**
+Poster images are served from `https://image.tmdb.org/t/p/w500/` CDN. The application stores full URLs rather than just image IDs, though this could be optimized by storing only the path and constructing URLs dynamically.
+
+### Database Schema Management
+
+**Drizzle Kit:**
+Used for schema migrations and database pushing. Configuration in `drizzle.config.ts` points to PostgreSQL dialect with migrations stored in `./migrations` directory. The `npm run db:push` command synchronizes schema without creating migration files, suitable for development.

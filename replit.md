@@ -7,11 +7,12 @@ CataMovie is a web-based movie catalog application that allows users to browse, 
 ## Recent Updates (November 21, 2025)
 
 **Latest Changes:**
-- **Ultra simplificado**: Apenas **198 linhas** de código total
+- **Consolidado em 1 arquivo**: Todo o código em **main.tsx** (208 linhas)
+- **Arquivos tsx eliminados**: Removidos App.tsx, home.tsx, not-found.tsx
 - **HTML puro**: input, textarea, button, select nativos
 - **Modal customizado**: Sem Dialog do Shadcn, apenas div + CSS
 - **Nomes curtos**: funções `add()`, `edit()`, `submit()`, `clear()`
-- **Sem componentes UI**: Removido Button, Input, Textarea, Dialog do Shadcn
+- **Sem componentes UI complexos**: Removido Button, Input, Textarea, Dialog do Shadcn
 - **Emojis para estrelas**: ⭐/☆ inline
 - **Sinopse visível**: Aparece diretamente no card do filme
 - **Código de estudante**: Extremamente básico e direto

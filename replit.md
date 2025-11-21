@@ -6,13 +6,38 @@ CataMovie is a web-based movie catalog application that allows users to browse, 
 
 ## Recent Updates (November 21, 2025)
 
-**Database Migration & New Features:**
-- Migrated from in-memory storage to PostgreSQL for persistent data storage
-- Added rating system (0-5 stars) to movies schema  
-- Added posterUrl field for movie poster images
-- Implemented UPDATE endpoint (PUT /api/movies/:id) for editing movies
-- Updated storage layer to DbStorage using Drizzle ORM with Neon PostgreSQL
-- Pre-populated database with 6 sample movies including ratings and poster URLs from TMDB
+**Complete Feature Set Implementation:**
+
+1. **PostgreSQL Persistence:**
+   - Migrated from in-memory storage to PostgreSQL for persistent data storage
+   - Updated storage layer to DbStorage using Drizzle ORM with Neon PostgreSQL
+   - Pre-populated database with 6 sample movies from TMDB
+
+2. **Star Rating System:**
+   - Added rating field (0-5 stars) to movies schema
+   - Created reusable StarRating component with interactive and read-only modes
+   - Integrated star display in movie cards and edit/add forms
+   - Visual feedback with filled/empty stars
+
+3. **Movie Posters:**
+   - Added posterUrl field to movies schema
+   - Display poster images in movie cards with proper aspect ratio
+   - Elegant gradient fallback for movies without posters
+   - Optional posterUrl field in add/edit forms
+
+4. **Edit Functionality:**
+   - Implemented PUT /api/movies/:id endpoint for updating movies
+   - Reused add movie dialog for editing with pre-populated fields
+   - Added edit button to each movie card (visible on hover)
+   - Fixed Select component to properly pre-populate genre on edit
+   - Update mutation with cache invalidation
+
+5. **Advanced Filtering:**
+   - Added genre filter dropdown with all available genres
+   - Added year filter dropdown with dynamic year options from catalog
+   - Combined filtering logic: search + genre + year work together
+   - "Clear filters" button appears when filters are active
+   - Responsive filter UI with proper test IDs
 
 ## User Preferences
 
@@ -40,9 +65,11 @@ Preferred communication style: Simple, everyday language.
 
 **Design Principles:**
 - Responsive grid layout: 2-5 columns depending on screen size
-- Card-based movie presentation with poster imagery
-- Clean, minimal interactions focused on add/remove/search functionality
+- Card-based movie presentation with poster imagery and hover effects
+- Interactive features: add, edit, delete, search, filter by genre/year
+- Star rating visualization with interactive editing
 - Typography hierarchy using DM Sans or Inter fonts
+- Smooth animations and transitions for enhanced UX
 
 ### Backend Architecture
 

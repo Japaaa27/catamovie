@@ -61,10 +61,17 @@ git push -u origin main
 # 1. Remover origin
 git remote remove origin
 
-# 2. Adicionar com token na URL (SUBSTITUA SEU_TOKEN)
+# 2. Adicionar novos arquivos e fazer commit
+git add .
+git commit -m "Initial commit - CataMovie"
+
+# 3. Criar branch main
+git branch -M main
+
+# 4. Adicionar com token na URL (SUBSTITUA SEU_TOKEN)
 git remote add origin https://Japaaa27:SEU_TOKEN_AQUI@github.com/Japaaa27/catamovie.git
 
-# 3. Push direto (não pede senha!)
+# 5. Push direto (não pede senha!)
 git push -u origin main
 ```
 

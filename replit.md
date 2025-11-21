@@ -6,23 +6,7 @@ CataMovie is a web-based movie catalog application that allows users to browse, 
 
 ## Recent Updates (November 21, 2025)
 
-**🪟 Windows Compatibility Update (Latest):**
-- **Full Windows Support**: Added complete `.env` support via `dotenv` package
-- **Cross-Platform Host**: Changed from `0.0.0.0` to `127.0.0.1` for Windows compatibility
-- **Automated Setup**: Created `setup-windows.bat` for one-click installation on Windows
-- **Comprehensive Documentation**: 
-  - `INSTALACAO_COMPLETA_WINDOWS.md` - Complete step-by-step guide
-  - `GUIA_RAPIDO_WINDOWS.md` - Quick reference guide
-  - `RODAR_NO_WINDOWS.md` - Updated with dotenv instructions
-- **Environment Loading**: Added `import "dotenv/config"` to:
-  - `db/index.ts` - Database connection
-  - `server/index-dev.ts` - Development server
-  - `server/seed.ts` - Database seeding
-- **Removed Windows Incompatibilities**: 
-  - Removed `reusePort: true` from server listen options
-  - Switched from IPv6 (`::1`) to IPv4 (`127.0.0.1`)
-
-**Previous Changes:**
+**Latest Changes:**
 - **APENAS 3 ARQUIVOS FRONTEND!**: De 53 para 3 (94% de redução!)
 - **Código 100% inline**: QueryClient e apiRequest dentro do main.tsx
 - **Zero dependências auxiliares**: Removidas todas pastas lib/, hooks/, components/

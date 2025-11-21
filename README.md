@@ -2,25 +2,6 @@
 
 Um catálogo de filmes simples e minimalista construído com React, Express e PostgreSQL.
 
----
-
-## 🪟 **USUÁRIOS WINDOWS - ATENÇÃO!**
-
-Se você está no **Windows**, use uma destas opções:
-
-### **OPÇÃO 1 - Setup Automático (Recomendado)** ⭐
-
-1. Baixe o arquivo **`setup-windows.bat`** do projeto
-2. Clique duas vezes nele
-3. Aguarde a instalação automática
-4. Pronto! 🎉
-
-### **OPÇÃO 2 - Passo a Passo Manual**
-
-Leia o guia completo: **[INSTALACAO_COMPLETA_WINDOWS.md](./INSTALACAO_COMPLETA_WINDOWS.md)**
-
----
-
 ## 📦 Tecnologias
 
 - **Frontend**: React 18 + Vite + Tailwind CSS

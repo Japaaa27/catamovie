@@ -31,10 +31,11 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { Film, Plus, Search, Trash2, Loader2 } from "lucide-react";
+import { Film, Plus, Search, Trash2, Loader2, Edit, X, Filter } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMovieSchema } from "@shared/schema";
+import { StarRating } from "@/components/StarRating";
 
 const genres = [
   "Ação",
@@ -52,6 +53,9 @@ const genres = [
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingMovie, setEditingMovie] = useState<Movie | null>(null);
+  const [selectedGenre, setSelectedGenre] = useState<string>("all");
+  const [selectedYear, setSelectedYear] = useState<string>("all");
   const { toast } = useToast();
 
   const { data: movies = [], isLoading } = useQuery<Movie[]>({
@@ -65,8 +69,36 @@ export default function Home() {
       year: new Date().getFullYear(),
       genre: "",
       synopsis: "",
+      rating: 0,
+      posterUrl: "",
     },
   });
+
+  const openAddDialog = () => {
+    setEditingMovie(null);
+    form.reset({
+      title: "",
+      year: new Date().getFullYear(),
+      genre: "",
+      synopsis: "",
+      rating: 0,
+      posterUrl: "",
+    });
+    setIsDialogOpen(true);
+  };
+
+  const openEditDialog = (movie: Movie) => {
+    setEditingMovie(movie);
+    form.reset({
+      title: movie.title,
+      year: movie.year,
+      genre: movie.genre,
+      synopsis: movie.synopsis,
+      rating: movie.rating || 0,
+      posterUrl: movie.posterUrl || "",
+    });
+    setIsDialogOpen(true);
+  };
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertMovie) => {
@@ -85,6 +117,29 @@ export default function Home() {
       toast({
         title: "Erro ao adicionar filme",
         description: "Ocorreu um erro ao adicionar o filme. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: InsertMovie }) => {
+      return await apiRequest("PUT", `/api/movies/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/movies"] });
+      toast({
+        title: "Filme atualizado!",
+        description: "As alterações foram salvas com sucesso.",
+      });
+      form.reset();
+      setIsDialogOpen(false);
+      setEditingMovie(null);
+    },
+    onError: () => {
+      toast({
+        title: "Erro ao atualizar filme",
+        description: "Ocorreu um erro ao atualizar o filme. Tente novamente.",
         variant: "destructive",
       });
     },
@@ -110,13 +165,32 @@ export default function Home() {
     },
   });
 
-  const filteredMovies = movies.filter((movie) =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredMovies = movies.filter((movie) => {
+    const matchesSearch = movie.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesGenre = selectedGenre === "all" || movie.genre === selectedGenre;
+    const matchesYear = selectedYear === "all" || movie.year.toString() === selectedYear;
+    return matchesSearch && matchesGenre && matchesYear;
+  });
+
+  const availableYears = Array.from(new Set(movies.map((m) => m.year)))
+    .sort((a, b) => b - a);
+
+  const hasActiveFilters = selectedGenre !== "all" || selectedYear !== "all";
+
+  const clearFilters = () => {
+    setSelectedGenre("all");
+    setSelectedYear("all");
+  };
 
   const onSubmit = (data: InsertMovie) => {
-    createMutation.mutate(data);
+    if (editingMovie) {
+      updateMutation.mutate({ id: editingMovie.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
   };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
     <div className="min-h-screen bg-background">
@@ -146,16 +220,20 @@ export default function Home() {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button data-testid="button-add-movie">
+              <Button onClick={openAddDialog} data-testid="button-add-movie">
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Filme
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl" data-testid="dialog-add-movie">
               <DialogHeader>
-                <DialogTitle>Adicionar Novo Filme</DialogTitle>
+                <DialogTitle>
+                  {editingMovie ? "Editar Filme" : "Adicionar Novo Filme"}
+                </DialogTitle>
                 <DialogDescription>
-                  Preencha as informações do filme para adicionar ao catálogo.
+                  {editingMovie
+                    ? "Faça as alterações desejadas e clique em salvar."
+                    : "Preencha as informações do filme para adicionar ao catálogo."}
                 </DialogDescription>
               </DialogHeader>
               
@@ -208,7 +286,7 @@ export default function Home() {
                           <FormLabel>Gênero</FormLabel>
                           <Select 
                             onValueChange={field.onChange} 
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger data-testid="select-genre">
@@ -252,28 +330,69 @@ export default function Home() {
                     )}
                   />
 
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="rating"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Avaliação</FormLabel>
+                          <FormControl>
+                            <div className="space-y-2">
+                              <StarRating
+                                rating={field.value || 0}
+                                interactive
+                                onChange={field.onChange}
+                                size="lg"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="posterUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL do Pôster (opcional)</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="https://..."
+                              {...field}
+                              data-testid="input-poster-url"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
                   <DialogFooter>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
-                      disabled={createMutation.isPending}
+                      disabled={isSubmitting}
                       data-testid="button-cancel"
                     >
                       Cancelar
                     </Button>
                     <Button 
                       type="submit" 
-                      disabled={createMutation.isPending}
+                      disabled={isSubmitting}
                       data-testid="button-submit"
                     >
-                      {createMutation.isPending ? (
+                      {isSubmitting ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Adicionando...
+                          {editingMovie ? "Salvando..." : "Adicionando..."}
                         </>
                       ) : (
-                        "Adicionar Filme"
+                        editingMovie ? "Salvar Alterações" : "Adicionar Filme"
                       )}
                     </Button>
                   </DialogFooter>
@@ -286,6 +405,66 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        {/* Filters */}
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Filter className="h-4 w-4" />
+            <span>Filtrar por:</span>
+          </div>
+          
+          <Select value={selectedGenre} onValueChange={setSelectedGenre}>
+            <SelectTrigger className="w-[180px]" data-testid="select-filter-genre">
+              <SelectValue placeholder="Todos os gêneros" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" data-testid="select-filter-genre-all">
+                Todos os gêneros
+              </SelectItem>
+              {genres.map((genre) => (
+                <SelectItem 
+                  key={genre} 
+                  value={genre}
+                  data-testid={`select-filter-genre-${genre.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {genre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-[140px]" data-testid="select-filter-year">
+              <SelectValue placeholder="Todos os anos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" data-testid="select-filter-year-all">
+                Todos os anos
+              </SelectItem>
+              {availableYears.map((year) => (
+                <SelectItem 
+                  key={year} 
+                  value={year.toString()}
+                  data-testid={`select-filter-year-${year}`}
+                >
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={clearFilters}
+              data-testid="button-clear-filters"
+            >
+              <X className="h-3 w-3 mr-1" />
+              Limpar filtros
+            </Button>
+          )}
+        </div>
+
         {searchQuery && (
           <p className="text-sm text-muted-foreground mb-4" data-testid="text-search-results">
             {filteredMovies.length} {filteredMovies.length === 1 ? "resultado" : "resultados"} para "{searchQuery}"
@@ -315,7 +494,7 @@ export default function Home() {
               </p>
             </div>
             {!searchQuery && (
-              <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-first-movie">
+              <Button onClick={openAddDialog} data-testid="button-add-first-movie">
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Primeiro Filme
               </Button>
@@ -332,11 +511,27 @@ export default function Home() {
                 className="group relative overflow-hidden transition-all hover-elevate active-elevate-2"
                 data-testid={`card-movie-${movie.id}`}
               >
-                <div className="aspect-[2/3] bg-gradient-to-br from-primary/20 via-accent/20 to-muted flex items-center justify-center relative">
-                  <Film className="h-16 w-16 text-muted-foreground/30" />
+                <div className="aspect-[2/3] relative">
+                  {movie.posterUrl ? (
+                    <img
+                      src={movie.posterUrl}
+                      alt={movie.title}
+                      className="w-full h-full object-cover"
+                      data-testid={`img-poster-${movie.id}`}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 via-accent/20 to-muted flex items-center justify-center">
+                      <Film className="h-16 w-16 text-muted-foreground/30" />
+                    </div>
+                  )}
                   
                   {/* Title Overlay */}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-4 pt-16">
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-4 pt-20">
+                    {movie.rating !== null && movie.rating > 0 && (
+                      <div className="mb-2">
+                        <StarRating rating={movie.rating} size="sm" />
+                      </div>
+                    )}
                     <h3 className="font-semibold text-white line-clamp-2 mb-1" data-testid={`text-movie-title-${movie.id}`}>
                       {movie.title}
                     </h3>
@@ -347,17 +542,28 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Delete Button */}
-                  <Button
-                    size="icon"
-                    variant="destructive"
-                    className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => deleteMutation.mutate(movie.id)}
-                    disabled={deleteMutation.isPending}
-                    data-testid={`button-delete-${movie.id}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {/* Action Buttons */}
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      className="h-8 w-8"
+                      onClick={() => openEditDialog(movie)}
+                      data-testid={`button-edit-${movie.id}`}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="h-8 w-8"
+                      onClick={() => deleteMutation.mutate(movie.id)}
+                      disabled={deleteMutation.isPending}
+                      data-testid={`button-delete-${movie.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Synopsis on hover - shown as tooltip-like overlay */}
@@ -365,23 +571,40 @@ export default function Home() {
                   <h3 className="font-semibold mb-2" data-testid={`text-movie-title-hover-${movie.id}`}>
                     {movie.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {movie.year} • {movie.genre}
-                  </p>
+                  <div className="flex items-center gap-3 mb-3">
+                    <p className="text-sm text-muted-foreground">
+                      {movie.year} • {movie.genre}
+                    </p>
+                    {movie.rating !== null && movie.rating > 0 && (
+                      <StarRating rating={movie.rating} size="sm" />
+                    )}
+                  </div>
                   <p className="text-sm line-clamp-6 flex-1" data-testid={`text-movie-synopsis-${movie.id}`}>
                     {movie.synopsis}
                   </p>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="mt-4"
-                    onClick={() => deleteMutation.mutate(movie.id)}
-                    disabled={deleteMutation.isPending}
-                    data-testid={`button-delete-hover-${movie.id}`}
-                  >
-                    <Trash2 className="h-3 w-3 mr-2" />
-                    Remover
-                  </Button>
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => openEditDialog(movie)}
+                      data-testid={`button-edit-hover-${movie.id}`}
+                    >
+                      <Edit className="h-3 w-3 mr-2" />
+                      Editar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={() => deleteMutation.mutate(movie.id)}
+                      disabled={deleteMutation.isPending}
+                      data-testid={`button-delete-hover-${movie.id}`}
+                    >
+                      <Trash2 className="h-3 w-3 mr-2" />
+                      Remover
+                    </Button>
+                  </div>
                 </div>
               </Card>
             ))}

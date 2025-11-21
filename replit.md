@@ -4,6 +4,16 @@
 
 CataMovie is a web-based movie catalog application that allows users to browse, add, and manage their personal movie collection. The application provides a Netflix/IMDb-inspired interface with a card-based layout for efficient browsing and discovery. Built as a full-stack TypeScript application, it features a React frontend with shadcn/ui components and an Express backend with PostgreSQL database storage.
 
+## Recent Updates (November 21, 2025)
+
+**Database Migration & New Features:**
+- Migrated from in-memory storage to PostgreSQL for persistent data storage
+- Added rating system (0-5 stars) to movies schema  
+- Added posterUrl field for movie poster images
+- Implemented UPDATE endpoint (PUT /api/movies/:id) for editing movies
+- Updated storage layer to DbStorage using Drizzle ORM with Neon PostgreSQL
+- Pre-populated database with 6 sample movies including ratings and poster URLs from TMDB
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -53,6 +63,7 @@ Preferred communication style: Simple, everyday language.
   - GET /api/movies - List all movies
   - GET /api/movies/:id - Get single movie
   - POST /api/movies - Create new movie
+  - PUT /api/movies/:id - Update movie
   - DELETE /api/movies/:id - Delete movie
 - Zod schema validation on incoming requests with user-friendly error messages
 
@@ -64,15 +75,15 @@ Preferred communication style: Simple, everyday language.
 - Database schema defined in shared/schema.ts for code sharing between client and server
 
 **Schema Design:**
-- Movies table with fields: id (UUID), title, year, genre, synopsis
+- Movies table with fields: id (UUID), title, year, genre, synopsis, rating (0-5), posterUrl
 - Auto-generated UUIDs using PostgreSQL's gen_random_uuid()
-- Validation constraints: year between 1888 and current year + 5
+- Validation constraints: year between 1888 and current year + 5, rating between 0 and 5
 
 **Data Access Pattern:**
 - Storage abstraction layer (IStorage interface) for flexibility
-- In-memory storage implementation (MemStorage) for development/testing
-- Seeded sample data in Portuguese for initial catalog population
-- Database migrations managed through drizzle-kit
+- DbStorage implementation using Drizzle ORM for PostgreSQL
+- Seeded sample data in Portuguese for initial catalog population with ratings and poster images
+- Database migrations managed through drizzle-kit using `npm run db:push`
 
 **Validation:**
 - Shared Zod schemas using drizzle-zod for type-safe validation

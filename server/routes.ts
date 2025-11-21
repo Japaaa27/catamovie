@@ -1,10 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertMovieSchema } from "@shared/schema";
+import { insertMovieSchema, updateMovieSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Seed database with sample movies on startup
+  await storage.seedMovies();
+
   // GET /api/movies - Get all movies
   app.get("/api/movies", async (_req, res) => {
     try {
@@ -42,6 +45,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(movie);
     } catch (error) {
       res.status(500).json({ error: "Failed to create movie" });
+    }
+  });
+
+  // PUT /api/movies/:id - Update a movie
+  app.put("/api/movies/:id", async (req, res) => {
+    try {
+      const result = updateMovieSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        const validationError = fromZodError(result.error);
+        return res.status(400).json({ error: validationError.message });
+      }
+
+      const movie = await storage.updateMovie(req.params.id, result.data);
+      if (!movie) {
+        return res.status(404).json({ error: "Movie not found" });
+      }
+      res.json(movie);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update movie" });
     }
   });
 

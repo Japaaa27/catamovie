@@ -1,40 +1,22 @@
-# ⚡ SETUP WINDOWS - Comandos PowerShell
+# ⚡ COPIAR E COLAR - Windows PowerShell
 
-## 1️⃣ Criar arquivo `.env` na raiz do projeto
+## 1️⃣ Criar arquivo `.env` (copie e cole no PowerShell)
 
-Conteúdo do `.env`:
-
-```env
-DATABASE_URL=postgresql://neondb_owner:npg_6zPq7NhdCLsK@ep-calm-wave-a8oaybb6-pooler.eastus2.azure.neon.tech/CataMovie?sslmode=require
+```powershell
+"DATABASE_URL=postgresql://neondb_owner:npg_6zPq7NhdCLsK@ep-calm-wave-a8oaybb6-pooler.eastus2.azure.neon.tech/CataMovie?sslmode=require" | Out-File -FilePath .env -Encoding utf8 -NoNewline
 ```
 
 ---
 
-## 2️⃣ Comandos PowerShell (em sequência)
-
-### Opção A - Automático (Recomendado):
+## 2️⃣ Instalar e rodar tudo (copie TUDO de uma vez e cole)
 
 ```powershell
-.\setup-windows.bat
-```
-
-### Opção B - Manual:
-
-```powershell
-npm install
-```
-
-```powershell
-npx tsx server/seed.ts
-```
-
-```powershell
-npm run dev
+npm install; npx tsx server/seed.ts; npm run dev
 ```
 
 ---
 
-## 3️⃣ Abrir no navegador
+## 3️⃣ Abrir navegador
 
 ```
 http://127.0.0.1:5000
@@ -42,4 +24,4 @@ http://127.0.0.1:5000
 
 ---
 
-✅ **Pronto!**
+✅ **Pronto! Só 2 comandos!**

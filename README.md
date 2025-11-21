@@ -43,9 +43,19 @@ DATABASE_URL=postgresql://usuario:senha@host:5432/database
 npm run db:push
 ```
 
-### 5. (Opcional) Popular com dados de exemplo
+### 5. Popular com dados reais
 
-Se você tiver um arquivo `database_backup.sql`, importe:
+**OPÇÃO A - Seed automático (recomendado):**
+
+```bash
+npx tsx server/seed.ts
+```
+
+Isso vai inserir os 6 filmes reais do projeto automaticamente!
+
+**OPÇÃO B - Importar SQL:**
+
+Se você tiver o arquivo `database_backup.sql`:
 
 ```bash
 psql "sua_url_do_banco" < database_backup.sql
@@ -86,6 +96,17 @@ catamovie/
 - ✅ Deletar filmes
 - ✅ Sistema de avaliação (1-5 estrelas)
 - ✅ Upload de URL de pôster
+- ✅ Dados reais incluídos (6 filmes clássicos)
+
+## 🎬 Filmes incluídos
+
+O projeto vem com 6 filmes clássicos pré-cadastrados:
+1. O Poderoso Chefão (1972)
+2. Pulp Fiction (1994)
+3. Clube da Luta (1999)
+4. Matrix (1999)
+5. Interestelar (2014)
+6. A Origem (2010)
 
 ## 🔒 Segurança
 
@@ -97,9 +118,10 @@ catamovie/
 ## 📝 Scripts disponíveis
 
 ```bash
-npm run dev        # Roda em modo desenvolvimento
-npm run build      # Build para produção
-npm run db:push    # Sincroniza schema com banco
+npm run dev              # Roda em modo desenvolvimento
+npm run build            # Build para produção
+npm run db:push          # Sincroniza schema com banco
+npx tsx server/seed.ts   # Popula banco com dados reais
 ```
 
 ## 🌐 Deploy

@@ -35,7 +35,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/movies", async (req, res) => {
     try {
       const result = insertMovieSchema.safeParse(req.body);
-      
+
       if (!result.success) {
         const validationError = fromZodError(result.error);
         return res.status(400).json({ error: validationError.message });
@@ -52,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/movies/:id", async (req, res) => {
     try {
       const result = updateMovieSchema.safeParse(req.body);
-      
+
       if (!result.success) {
         const validationError = fromZodError(result.error);
         return res.status(400).json({ error: validationError.message });

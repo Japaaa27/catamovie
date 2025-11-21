@@ -63,13 +63,47 @@ psql "sua_url_do_banco" < database_backup.sql
 
 ### 6. Rodar o projeto
 
+**Linux/Mac:**
 ```bash
 npm run dev
 ```
 
-**Windows:** Funciona! O projeto agora tem suporte completo ao `.env` no Windows.
+**Windows PowerShell:**
+```powershell
+$env:NODE_ENV="development"; npx tsx server/index-dev.ts
+```
 
 Acesse: http://localhost:5000
+
+---
+
+## 🪟 ATALHO RÁPIDO - WINDOWS
+
+**Comandos completos para iniciar no Windows (PowerShell):**
+
+```powershell
+# 1. Instalar dependências
+npm install
+
+# 2. Criar arquivo .env (se não existir)
+"DATABASE_URL=postgresql://neondb_owner:npg_6zPq7NhdCLsK@ep-calm-wave-a8oaybb6-pooler.eastus2.azure.neon.tech/CataMovie?sslmode=require" | Out-File -FilePath .env -Encoding utf8 -NoNewline
+
+# 3. Popular banco com filmes
+npx tsx server/seed.ts
+
+# 4. Iniciar servidor
+$env:NODE_ENV="development"; npx tsx server/index-dev.ts
+```
+
+**Ou tudo de uma vez:**
+
+```powershell
+npm install; npx tsx server/seed.ts; $env:NODE_ENV="development"; npx tsx server/index-dev.ts
+```
+
+Acesse: **http://localhost:5000**
+
+---
 
 ## 📁 Estrutura do Projeto
 
